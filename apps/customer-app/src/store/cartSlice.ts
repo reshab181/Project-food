@@ -18,7 +18,12 @@ const cartSlice = createSlice({
       const { product, variantId, quantity, addOnIds = [], note } = action.payload;
       const variant = product.variants.find((item) => item._id === variantId) ?? product.variants[0];
       const addOns = product.addOns.filter((addOn) => addOnIds.includes(addOn._id ?? ''));
-      const existing = state.items.find((item) => item.productId === product._id && item.variantId === variant._id);
+      const addOnIdsSorted = addOns.map((a) => a._id).filter(Boolean).sort();
+      const existing = state.items.find((item) => {
+        if (item.productId !== product._id || item.variantId !== (variant._id ?? variant.value)) return false;
+        const existingIds = item.addOns.map((a) => a._id).filter(Boolean).sort();
+        return JSON.stringify(existingIds) === JSON.stringify(addOnIdsSorted);
+      });
 
       if (existing) {
         existing.quantity += quantity;

@@ -1,6 +1,12 @@
-import { LinearGradient } from 'expo-linear-gradient';
+// Editorial category item — icon + label, no background box, separated by whitespace.
 import { Pressable, StyleSheet, Text } from 'react-native';
-import { customerTheme } from '../theme';
+import { palette, type as t } from '../theme';
+
+const ICONS: Record<string, string> = {
+  Cakes:  '🎂',
+  Pizza:  '🍕',
+  Burger: '🍔',
+};
 
 interface CategoryCardProps {
   label: string;
@@ -8,26 +14,31 @@ interface CategoryCardProps {
 }
 
 export const CategoryCard = ({ label, onPress }: CategoryCardProps) => (
-  <Pressable onPress={onPress} style={styles.wrapper}>
-    <LinearGradient colors={['#FFF5DE', '#FBE7C0']} style={styles.gradient}>
-      <Text style={styles.label}>{label}</Text>
-    </LinearGradient>
+  <Pressable
+    onPress={onPress}
+    style={({ pressed }) => [styles.item, pressed && { opacity: 0.7 }]}
+    accessibilityRole="button"
+  >
+    <Text style={styles.icon}>{ICONS[label] ?? '🍽️'}</Text>
+    <Text style={styles.label}>{label}</Text>
   </Pressable>
 );
 
 const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1
+  item: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 12,
   },
-  gradient: {
-    minHeight: 96,
-    borderRadius: customerTheme.radius.md,
-    justifyContent: 'center',
-    padding: customerTheme.spacing.md
+  icon: {
+    fontSize: 26,
+    lineHeight: 32,
   },
   label: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: customerTheme.colors.primaryDark
-  }
+    ...t.caption,
+    color: palette.textSoft,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
 });

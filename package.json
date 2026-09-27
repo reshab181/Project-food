@@ -13,5 +13,10 @@
     "dev:backend": "npm --workspace @bambam/backend run dev",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "dependencies": {
+    "expo": "^57.0.20",
+    "react-dom": "19.2.3",
+    "react-native-web": "^0.21.2"
   }
 }

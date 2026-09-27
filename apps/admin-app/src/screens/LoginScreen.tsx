@@ -10,13 +10,18 @@ import { adminTheme } from '../theme';
 export const LoginScreen = () => {
   const dispatch = useAppDispatch();
   const status = useAppSelector((state) => state.adminAuth.status);
-  const [identifier, setIdentifier] = useState('admin@bambamcakeshop.com');
-  const [password, setPassword] = useState('Admin@123');
+  const authError = useAppSelector((state) => state.adminAuth.error);
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
+    if (!identifier.trim() || !password) {
+      Alert.alert('Missing fields', 'Please enter your email/phone and password.');
+      return;
+    }
     try {
-      await dispatch(loginAdmin({ identifier, password })).unwrap();
+      await dispatch(loginAdmin({ identifier: identifier.trim(), password })).unwrap();
     } catch (error) {
       Alert.alert('Login failed', error instanceof Error ? error.message : 'Please try again.');
     }
@@ -43,7 +48,9 @@ export const LoginScreen = () => {
           </Text>
         </View>
         <PrimaryButton label={status === 'loading' ? 'Logging in...' : 'Secure Login'} onPress={handleLogin} />
-        <Text style={styles.helper}>Seeded default: `admin@bambamcakeshop.com` / `Admin@123`</Text>
+        {status === 'error' && authError ? (
+          <Text style={styles.errorText}>{authError}</Text>
+        ) : null}
       </View>
     </Screen>
   );
@@ -98,7 +105,9 @@ const styles = StyleSheet.create({
     color: adminTheme.colors.primary,
     fontWeight: '800'
   },
-  helper: {
-    color: adminTheme.colors.textMuted
+  errorText: {
+    color: '#C0392B',
+    fontSize: 13,
+    textAlign: 'center'
   }
 });

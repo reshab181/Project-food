@@ -1,50 +1,77 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
-import { customerTheme } from '../theme';
+import { palette, type as t } from '../theme';
 
 interface PrimaryButtonProps {
   label: string;
   onPress: () => void;
-  variant?: 'solid' | 'outline';
+  variant?: 'solid' | 'outline' | 'ghost';
   loading?: boolean;
+  disabled?: boolean;
 }
 
-export const PrimaryButton = ({ label, onPress, variant = 'solid', loading }: PrimaryButtonProps) => (
+export const PrimaryButton = ({
+  label,
+  onPress,
+  variant = 'solid',
+  loading,
+  disabled,
+}: PrimaryButtonProps) => (
   <Pressable
     onPress={onPress}
-    style={[styles.button, variant === 'outline' ? styles.outline : styles.solid]}
-    disabled={loading}
+    disabled={loading || disabled}
+    style={({ pressed }) => [
+      styles.base,
+      variant === 'solid'   && styles.solid,
+      variant === 'outline' && styles.outline,
+      variant === 'ghost'   && styles.ghost,
+      (pressed || disabled) && styles.dimmed,
+    ]}
+    accessibilityRole="button"
   >
     {loading ? (
-      <ActivityIndicator color={variant === 'outline' ? customerTheme.colors.primary : '#fff'} />
+      <ActivityIndicator
+        size="small"
+        color={variant === 'solid' ? palette.white : palette.accent}
+      />
     ) : (
-      <Text style={[styles.label, variant === 'outline' ? styles.outlineLabel : styles.solidLabel]}>{label}</Text>
+      <Text
+        style={[
+          styles.label,
+          variant === 'solid'   && styles.solidLabel,
+          variant === 'outline' && styles.outlineLabel,
+          variant === 'ghost'   && styles.ghostLabel,
+        ]}
+      >
+        {label}
+      </Text>
     )}
   </Pressable>
 );
 
 const styles = StyleSheet.create({
-  button: {
-    minHeight: 52,
-    borderRadius: customerTheme.radius.md,
+  base: {
+    height: 50,
+    borderRadius: 10,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    paddingHorizontal: 20,
   },
   solid: {
-    backgroundColor: customerTheme.colors.primary
+    backgroundColor: palette.accent,
   },
   outline: {
     borderWidth: 1,
-    borderColor: customerTheme.colors.primary,
-    backgroundColor: customerTheme.colors.surface
+    borderColor: palette.accent,
+    backgroundColor: 'transparent',
   },
+  ghost: {
+    backgroundColor: 'transparent',
+  },
+  dimmed: { opacity: 0.55 },
   label: {
-    fontWeight: '700',
-    fontSize: 16
+    ...t.label,
   },
-  solidLabel: {
-    color: '#fff'
-  },
-  outlineLabel: {
-    color: customerTheme.colors.primary
-  }
+  solidLabel: { color: palette.white },
+  outlineLabel: { color: palette.accent },
+  ghostLabel: { color: palette.textSoft },
 });

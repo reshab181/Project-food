@@ -3,65 +3,142 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { CategoryCard } from '../components/CategoryCard';
 import { InfoBanner } from '../components/InfoBanner';
 import { ProductCard } from '../components/ProductCard';
-import { PureVegBadge } from '../components/PureVegBadge';
 import { Screen } from '../components/Screen';
 import { SectionHeader } from '../components/SectionHeader';
 import { useAppSelector } from '../store';
-import { customerTheme } from '../theme';
+import { customerTheme, palette, type as t } from '../theme';
 
 export const HomeScreen = ({ navigation }: any) => {
-  const products = useAppSelector((state) => state.catalog.products);
-  const trending = products.filter((item) => item.isTrending);
-  const recommended = products.filter((item) => item.isRecommended);
+  const products    = useAppSelector((s) => s.catalog.products);
+  const trending    = products.filter((p) => p.isTrending);
+  const recommended = products.filter((p) => p.isRecommended);
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <PureVegBadge />
-        <Text style={styles.title}>{brand.appName}</Text>
-        <Text style={styles.subtitle}>{brand.trustMessage}</Text>
+      {/* ── Wordmark ── */}
+      <View style={styles.hero}>
+        <View style={styles.heroRule} />
+        <View style={styles.wordmarkRow}>
+          <Text style={styles.kicker}>PURE VEGETARIAN KITCHEN</Text>
+          <Text style={styles.wordmark}>{brand.appName}</Text>
+          <Text style={styles.tagline}>{brand.tagline}</Text>
+        </View>
       </View>
-      <TextInput placeholder="Search cakes, pizza, burgers..." style={styles.search} />
-      <InfoBanner title="Fresh from the Pure Veg kitchen" message="Daily baked cakes, cheesy pizza, and satisfying burgers crafted without egg or non-veg ingredients." />
-      <SectionHeader title="Shop by category" subtitle="Pure veg favorites for every craving" />
-      <View style={styles.categoryRow}>
-        <CategoryCard label="Cakes" onPress={() => navigation.navigate('CatalogTab')} />
-        <CategoryCard label="Pizza" onPress={() => navigation.navigate('CatalogTab')} />
+
+      {/* ── Search — hairline underline only ── */}
+      <View style={styles.searchWrap}>
+        <TextInput
+          placeholder="Search…"
+          placeholderTextColor={palette.textFaint}
+          style={styles.searchInput}
+        />
+        <View style={styles.searchLine} />
+      </View>
+
+      {/* ── Category row — icon + label, no fills ── */}
+      <View style={styles.catRow}>
+        <CategoryCard label="Cakes"  onPress={() => navigation.navigate('CatalogTab')} />
+        <CategoryCard label="Pizza"  onPress={() => navigation.navigate('CatalogTab')} />
         <CategoryCard label="Burger" onPress={() => navigation.navigate('CatalogTab')} />
       </View>
-      <SectionHeader title="Trending now" subtitle="Best loved by Bam Bam customers" />
-      {trending.map((product) => (
-        <ProductCard key={product._id} product={product} onPress={() => navigation.navigate('ProductDetails', { productId: product._id })} />
-      ))}
-      <SectionHeader title="Recommended for you" subtitle="Premium veg picks with ingredient transparency" />
-      {recommended.map((product) => (
-        <ProductCard key={product._id} product={product} onPress={() => navigation.navigate('ProductDetails', { productId: product._id })} />
-      ))}
+
+      {/* ── Quiet info strip ── */}
+      <InfoBanner
+        title="Fresh daily — no egg, no meat"
+        message={brand.trustMessage}
+      />
+
+      {/* ── Trending ── */}
+      {trending.length > 0 ? (
+        <View style={styles.section}>
+          <SectionHeader title="Trending now" />
+          <View style={styles.list}>
+            {trending.map((p) => (
+              <ProductCard
+                key={p._id}
+                product={p}
+                onPress={() => navigation.navigate('ProductDetails', { productId: p._id })}
+              />
+            ))}
+          </View>
+        </View>
+      ) : null}
+
+      {/* ── Recommended ── */}
+      {recommended.length > 0 ? (
+        <View style={styles.section}>
+          <SectionHeader title="For you" />
+          <View style={styles.list}>
+            {recommended.map((p) => (
+              <ProductCard
+                key={p._id}
+                product={p}
+                onPress={() => navigation.navigate('ProductDetails', { productId: p._id })}
+              />
+            ))}
+          </View>
+        </View>
+      ) : null}
     </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  header: {
-    gap: 8
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: '900',
-    color: customerTheme.colors.text
-  },
-  subtitle: {
-    color: customerTheme.colors.textMuted,
-    lineHeight: 21
-  },
-  search: {
-    borderRadius: customerTheme.radius.md,
-    backgroundColor: customerTheme.colors.surface,
-    paddingHorizontal: 16,
-    paddingVertical: 14
-  },
-  categoryRow: {
+  hero: {
     flexDirection: 'row',
-    gap: 12
-  }
+    gap: customerTheme.spacing.sm,
+    paddingTop: customerTheme.spacing.sm,
+    paddingBottom: customerTheme.spacing.xs,
+  },
+  heroRule: {
+    width: 3,
+    alignSelf: 'stretch',
+    backgroundColor: palette.warm,
+  },
+  wordmarkRow: {
+    flex: 1,
+    gap: 3,
+  },
+  kicker: {
+    ...t.overline,
+    color: palette.warm,
+  },
+  wordmark: {
+    ...t.display,
+    color: palette.text,
+    fontSize: 32,
+    lineHeight: 38,
+    letterSpacing: 0.3,
+  },
+  tagline: {
+    ...t.caption,
+    color: palette.textSoft,
+    letterSpacing: 0.2,
+  },
+  searchWrap: {
+    gap: 0,
+  },
+  searchInput: {
+    ...t.input,
+    color: palette.text,
+    paddingVertical: 10,
+    paddingHorizontal: 0,
+  },
+  searchLine: {
+    height: 1,
+    backgroundColor: palette.border,
+  },
+  catRow: {
+    flexDirection: 'row',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: palette.hairline,
+    paddingVertical: 4,
+  },
+  section: {
+    gap: customerTheme.spacing.sm,
+  },
+  list: {
+    gap: customerTheme.spacing.lg,
+  },
 });

@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, ViewStyle } from 'react-native';
-import { customerTheme } from '../theme';
+import { palette, customerTheme } from '../theme';
 
 interface ScreenProps extends PropsWithChildren {
   scroll?: boolean;
@@ -8,24 +8,29 @@ interface ScreenProps extends PropsWithChildren {
 }
 
 export const Screen = ({ children, scroll = true, contentStyle }: ScreenProps) => {
-  const content = scroll ? (
-    <ScrollView contentContainerStyle={[styles.content, contentStyle]} showsVerticalScrollIndicator={false}>
+  const inner = scroll ? (
+    <ScrollView
+      contentContainerStyle={[styles.content, contentStyle]}
+      showsVerticalScrollIndicator={false}
+    >
       {children}
     </ScrollView>
   ) : (
     children
   );
 
-  return <SafeAreaView style={styles.safe}>{content}</SafeAreaView>;
+  return <SafeAreaView style={styles.safe}>{inner}</SafeAreaView>;
 };
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: customerTheme.colors.background
+    backgroundColor: palette.bg,
   },
   content: {
-    padding: customerTheme.spacing.md,
-    gap: customerTheme.spacing.md
-  }
+    paddingHorizontal: customerTheme.spacing.md,
+    paddingTop: customerTheme.spacing.lg,
+    paddingBottom: customerTheme.spacing.xxl,
+    gap: customerTheme.spacing.lg,
+  },
 });

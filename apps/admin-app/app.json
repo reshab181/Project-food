@@ -17,6 +17,9 @@
     "extra": {
       "apiUrl": "http://localhost:5000/api/v1",
       "socketUrl": "http://localhost:5000"
-    }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

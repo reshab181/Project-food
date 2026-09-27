@@ -1,4 +1,4 @@
-import { ApiListResponse, AuthResponse, NotificationPayload, Order, Product } from '@bambam/shared';
+import { Address, ApiListResponse, AuthResponse, NotificationPayload, Order, PaymentMethod, Product } from '@bambam/shared';
 import { apiClient } from './client';
 
 export const authApi = {
@@ -17,8 +17,14 @@ export const authApi = {
   me() {
     return apiClient.get<AuthResponse>('/auth/me');
   },
+  addAddress(payload: Address) {
+    return apiClient.post<{ user: AuthResponse['user'] }>('/auth/addresses', payload);
+  },
   registerPushToken(expoPushToken: string) {
     return apiClient.post('/auth/push-token', { expoPushToken });
+  },
+  deregisterPushToken(expoPushToken: string) {
+    return apiClient.delete('/auth/push-token', { data: { expoPushToken } });
   }
 };
 
@@ -38,13 +44,22 @@ export const orderApi = {
   list() {
     return apiClient.get<ApiListResponse<Order>>('/orders');
   },
-  place(payload: Partial<Order>) {
+  place(payload: PlaceOrderPayload) {
     return apiClient.post<Order>('/orders', payload);
   },
   getById(id: string) {
     return apiClient.get<Order>(`/orders/${id}`);
   }
 };
+
+export interface PlaceOrderPayload {
+  items: Array<{ productId: string; variantId: string; quantity: number; addOnIds: string[] }>;
+  address: Address;
+  paymentMethod: PaymentMethod;
+  scheduledFor?: string;
+  note?: string;
+  couponCode?: string;
+}
 
 export const couponApi = {
   list() {

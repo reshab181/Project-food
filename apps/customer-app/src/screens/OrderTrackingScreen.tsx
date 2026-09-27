@@ -2,30 +2,35 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../components/Screen';
 import { SectionHeader } from '../components/SectionHeader';
 import { useAppSelector } from '../store';
-import { customerTheme } from '../theme';
+import { customerTheme, type as t } from '../theme';
 
 export const OrderTrackingScreen = ({ route }: any) => {
   const orderId = route.params?.orderId;
-  const order = useAppSelector((state) => state.orders.orders.find((item) => item._id === orderId) ?? state.orders.orders[0]);
+  const order = useAppSelector(
+    (state) => state.orders.orders.find((item) => item._id === orderId) ?? state.orders.orders[0]
+  );
 
   if (!order) {
     return (
       <Screen>
-        <Text>No order found.</Text>
+        <Text style={styles.empty}>Order not found. It may still be loading.</Text>
       </Screen>
     );
   }
 
   return (
     <Screen>
-      <SectionHeader title={order.orderNumber} subtitle={`Current status: ${order.status.replaceAll('_', ' ')}`} />
+      <SectionHeader
+        title={order.orderNumber}
+        subtitle={`Status: ${order.status.replaceAll('_', ' ')}`}
+      />
       {order.timeline.map((event) => (
-        <View key={`${event.status}-${event.createdAt}`} style={styles.timelineCard}>
+        <View key={`${event.status}-${event.createdAt}`} style={styles.card}>
           <View style={styles.dot} />
           <View style={styles.copy}>
-            <Text style={styles.title}>{event.title}</Text>
-            <Text style={styles.description}>{event.description}</Text>
-            <Text style={styles.date}>{new Date(event.createdAt).toLocaleString()}</Text>
+            <Text style={styles.eventTitle}>{event.title}</Text>
+            <Text style={styles.eventDesc}>{event.description}</Text>
+            <Text style={styles.eventDate}>{new Date(event.createdAt).toLocaleString()}</Text>
           </View>
         </View>
       ))}
@@ -34,33 +39,24 @@ export const OrderTrackingScreen = ({ route }: any) => {
 };
 
 const styles = StyleSheet.create({
-  timelineCard: {
+  empty: { ...t.body, color: customerTheme.colors.textMuted, textAlign: 'center', paddingVertical: 40 },
+  card: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 14,
     backgroundColor: customerTheme.colors.surface,
     borderRadius: customerTheme.radius.lg,
     padding: customerTheme.spacing.md
   },
   dot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    marginTop: 6,
-    backgroundColor: customerTheme.colors.primary
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginTop: 5,
+    backgroundColor: customerTheme.colors.primary,
+    flexShrink: 0
   },
-  copy: {
-    flex: 1,
-    gap: 4
-  },
-  title: {
-    fontWeight: '800',
-    color: customerTheme.colors.text
-  },
-  description: {
-    color: customerTheme.colors.textMuted
-  },
-  date: {
-    color: customerTheme.colors.textMuted,
-    fontSize: 12
-  }
+  copy: { flex: 1, gap: 4 },
+  eventTitle: { ...t.label, color: customerTheme.colors.text },
+  eventDesc: { ...t.body, color: customerTheme.colors.textMuted },
+  eventDate: { ...t.caption, color: customerTheme.colors.textMuted }
 });

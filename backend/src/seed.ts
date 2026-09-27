@@ -1,4 +1,6 @@
-import { demoCoupons, demoInventory, demoProducts } from '@bambam/shared';
+// Use a relative import so the compiled seed can load the shared demo data
+// without asking Node to execute the workspace's TypeScript source files.
+import { demoCoupons, demoInventory, demoProducts } from '../../packages/shared/src/mockData';
 import { connectDatabase } from './config/db';
 import { CouponModel } from './models/Coupon';
 import { InventoryItemModel } from './models/InventoryItem';

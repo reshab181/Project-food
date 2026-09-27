@@ -1,62 +1,82 @@
 import { brand } from '@bambam/shared';
-import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, View } from 'react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { Screen } from '../components/Screen';
-import { customerTheme } from '../theme';
+import { palette, type as t } from '../theme';
+
+const POINTS = [
+  'Fresh cakes, pizza, and burgers from a pure veg kitchen.',
+  'Live order tracking with instant updates from the shop.',
+  'Full ingredient transparency with every item.',
+];
 
 export const OnboardingScreen = ({ onDone }: { onDone: () => void }) => (
   <Screen>
-    <LinearGradient colors={['#1E8E3E', '#56AB2F']} style={styles.hero}>
-      <Text style={styles.title}>{brand.appName}</Text>
+    {/* ── Wordmark block ── */}
+    <View style={styles.hero}>
+      <Text style={styles.appName}>{brand.appName}</Text>
       <Text style={styles.tagline}>{brand.tagline}</Text>
-      <Text style={styles.copy}>{brand.trustMessage}</Text>
-    </LinearGradient>
-    <View style={styles.card}>
-      <Text style={styles.heading}>What you can do</Text>
-      <Text style={styles.item}>Fresh cakes, pizza, and burgers from a pure veg kitchen.</Text>
-      <Text style={styles.item}>Live order tracking with instant updates from the shop.</Text>
-      <Text style={styles.item}>Ingredients transparency, veg badge, and trusted delivery flow.</Text>
     </View>
-    <PrimaryButton label="Start Ordering" onPress={onDone} />
+
+    <View style={styles.divider} />
+
+    {/* ── Value props ── */}
+    <View style={styles.points}>
+      {POINTS.map((line) => (
+        <View key={line} style={styles.pointRow}>
+          <Text style={styles.bullet}>—</Text>
+          <Text style={styles.pointText}>{line}</Text>
+        </View>
+      ))}
+    </View>
+
+    <View style={styles.divider} />
+
+    <PrimaryButton label="Start ordering" onPress={onDone} />
+
+    <Text style={styles.fine}>{brand.trustMessage}</Text>
   </Screen>
 );
 
 const styles = StyleSheet.create({
   hero: {
-    minHeight: 260,
-    borderRadius: customerTheme.radius.lg,
-    padding: customerTheme.spacing.xl,
-    justifyContent: 'flex-end',
-    gap: 10
+    paddingTop: 24,
+    gap: 8,
   },
-  title: {
-    color: '#fff',
-    fontSize: 32,
-    fontWeight: '900'
+  appName: {
+    ...t.display,
+    color: palette.text,
+    letterSpacing: 1.2,
   },
   tagline: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700'
+    ...t.body,
+    color: palette.textSoft,
   },
-  copy: {
-    color: '#F4FCEF',
-    lineHeight: 22
+  divider: {
+    height: 1,
+    backgroundColor: palette.hairline,
   },
-  card: {
-    backgroundColor: customerTheme.colors.surface,
-    borderRadius: customerTheme.radius.lg,
-    padding: customerTheme.spacing.lg,
-    gap: 12
+  points: {
+    gap: 16,
   },
-  heading: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: customerTheme.colors.text
+  pointRow: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'flex-start',
   },
-  item: {
-    color: customerTheme.colors.textMuted,
-    lineHeight: 22
-  }
+  bullet: {
+    ...t.body,
+    color: palette.accent,
+    marginTop: 1,
+  },
+  pointText: {
+    ...t.body,
+    color: palette.textSoft,
+    flex: 1,
+  },
+  fine: {
+    ...t.caption,
+    color: palette.textFaint,
+    textAlign: 'center',
+  },
 });

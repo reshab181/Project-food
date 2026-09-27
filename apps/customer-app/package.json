@@ -5,12 +5,15 @@
   "main": "expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
+    "web": "expo start --web",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@bambam/shared": "1.0.0",
+    "@expo-google-fonts/bricolage-grotesque": "^0.4.1",
+    "@expo/metro-runtime": "~57.0.16",
     "@hookform/resolvers": "latest",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "latest",
@@ -18,18 +21,21 @@
     "@react-navigation/native-stack": "latest",
     "@reduxjs/toolkit": "latest",
     "axios": "latest",
-    "expo": "55.0.18",
-    "expo-auth-session": "latest",
-    "expo-constants": "latest",
-    "expo-linear-gradient": "latest",
-    "expo-notifications": "latest",
-    "expo-secure-store": "latest",
-    "expo-status-bar": "latest",
-    "react": "19.2.0",
+    "expo": "~57.0.25",
+    "expo-auth-session": "~57.0.13",
+    "expo-constants": "~57.0.19",
+    "expo-font": "~57.0.4",
+    "expo-linear-gradient": "~57.0.2",
+    "expo-notifications": "~57.0.21",
+    "expo-secure-store": "~57.0.4",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-hook-form": "latest",
-    "react-native": "0.83.6",
-    "react-native-safe-area-context": "~5.6.2",
-    "react-native-screens": "~4.23.0",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-web": "^0.21.2",
     "react-redux": "latest",
     "socket.io-client": "latest",
     "zod": "latest"
@@ -37,6 +43,6 @@
   "devDependencies": {
     "@types/react": "latest",
     "@types/react-native": "latest",
-    "typescript": "latest"
+    "typescript": "~6.0.3"
   }
 }

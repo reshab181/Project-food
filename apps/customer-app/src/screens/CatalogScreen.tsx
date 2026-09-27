@@ -5,71 +5,101 @@ import { ProductCard } from '../components/ProductCard';
 import { Screen } from '../components/Screen';
 import { SectionHeader } from '../components/SectionHeader';
 import { useAppSelector } from '../store';
-import { customerTheme } from '../theme';
+import { customerTheme, palette, type as t } from '../theme';
 
-const categories = ['all', 'cakes', 'pizza', 'burger'] as const;
+const CATEGORIES = ['all', 'cakes', 'pizza', 'burger'] as const;
+type Cat = (typeof CATEGORIES)[number];
 
 export const CatalogScreen = ({ navigation }: any) => {
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState<(typeof categories)[number]>('all');
-  const products = useAppSelector((state) => state.catalog.products);
+  const [query,    setQuery]    = useState('');
+  const [category, setCategory] = useState<Cat>('all');
+  const products = useAppSelector((s) => s.catalog.products);
 
   const filtered = useMemo(
     () =>
-      products.filter((product) => {
-        const matchesCategory = category === 'all' || product.category === category;
-        const matchesSearch = product.name.toLowerCase().includes(query.toLowerCase());
-        return matchesCategory && matchesSearch;
+      products.filter((p) => {
+        const matchCat    = category === 'all' || p.category === category;
+        const matchSearch = p.name.toLowerCase().includes(query.toLowerCase());
+        return matchCat && matchSearch;
       }),
     [category, products, query]
   );
 
   return (
     <Screen>
-      <SectionHeader title="Pure Veg Menu" subtitle="All items are crafted in a 100% vegetarian kitchen." />
-      <TextInput value={query} onChangeText={setQuery} placeholder="Search by item name" style={styles.search} />
-      <View style={styles.filterRow}>
-        {categories.map((item) => (
-          <Pressable key={item} onPress={() => setCategory(item)} style={[styles.chip, category === item && styles.chipActive]}>
-            <Text style={[styles.chipText, category === item && styles.chipTextActive]}>
-              {item === 'all' ? 'All' : brand.categoryLabels[item]}
-            </Text>
-          </Pressable>
-        ))}
+      <SectionHeader title="Menu" subtitle="100% vegetarian kitchen" />
+
+      {/* Borderless search */}
+      <View style={styles.searchWrap}>
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search…"
+          placeholderTextColor={palette.textFaint}
+          style={styles.searchInput}
+        />
+        <View style={styles.searchLine} />
       </View>
-      {filtered.map((product) => (
-        <ProductCard key={product._id} product={product} onPress={() => navigation.navigate('ProductDetails', { productId: product._id })} />
-      ))}
+
+      {/* Category filter — plain text chips */}
+      <View style={styles.chipRow}>
+        {CATEGORIES.map((c) => {
+          const active = c === category;
+          return (
+            <Pressable key={c} onPress={() => setCategory(c)} style={styles.chip}>
+              <Text style={[styles.chipText, active && styles.chipTextActive]}>
+                {c === 'all' ? 'All' : brand.categoryLabels[c]}
+              </Text>
+              {active ? <View style={styles.chipBar} /> : null}
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <View style={styles.divider} />
+
+      {filtered.length === 0 ? (
+        <Text style={styles.empty}>Nothing matches your search.</Text>
+      ) : (
+        <View style={styles.list}>
+          {filtered.map((p) => (
+            <ProductCard
+              key={p._id}
+              product={p}
+              onPress={() => navigation.navigate('ProductDetails', { productId: p._id })}
+            />
+          ))}
+        </View>
+      )}
     </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  search: {
-    borderRadius: customerTheme.radius.md,
-    backgroundColor: customerTheme.colors.surface,
-    paddingHorizontal: 16,
-    paddingVertical: 14
-  },
-  filterRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10
-  },
-  chip: {
-    paddingHorizontal: 14,
+  searchWrap: { gap: 0 },
+  searchInput: {
+    ...t.input,
+    color: palette.text,
     paddingVertical: 10,
-    borderRadius: customerTheme.radius.pill,
-    backgroundColor: customerTheme.colors.mutedSurface
+    paddingHorizontal: 0,
   },
-  chipActive: {
-    backgroundColor: '#E9F7EE'
-  },
+  searchLine: { height: 1, backgroundColor: palette.border },
+  chipRow: { flexDirection: 'row', gap: 24 },
+  chip: { alignItems: 'center', gap: 4, paddingBottom: 2 },
   chipText: {
-    color: customerTheme.colors.textMuted,
-    fontWeight: '700'
+    ...t.caption,
+    color: palette.textFaint,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  chipTextActive: {
-    color: customerTheme.colors.primary
-  }
+  chipTextActive: { color: palette.text },
+  chipBar: { height: 1, width: '100%', backgroundColor: palette.text },
+  divider: { height: 1, backgroundColor: palette.hairline },
+  list: { gap: customerTheme.spacing.lg },
+  empty: {
+    ...t.body,
+    color: palette.textFaint,
+    textAlign: 'center',
+    paddingVertical: 40,
+  },
 });

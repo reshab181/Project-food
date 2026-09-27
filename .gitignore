@@ -13,6 +13,7 @@ coverage
 **/android/*.iml
 **/android/gradle/
 data/db/
+.mongodb-data/
 tools/mongodb/
 ios
 .idea

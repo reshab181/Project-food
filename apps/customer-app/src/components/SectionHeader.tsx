@@ -1,5 +1,6 @@
+// Section label — overline-style uppercase small text, no big bold heading.
 import { StyleSheet, Text, View } from 'react-native';
-import { customerTheme } from '../theme';
+import { palette, type as t } from '../theme';
 
 interface SectionHeaderProps {
   title: string;
@@ -7,23 +8,20 @@ interface SectionHeaderProps {
 }
 
 export const SectionHeader = ({ title, subtitle }: SectionHeaderProps) => (
-  <View style={styles.wrapper}>
-    <Text style={styles.title}>{title}</Text>
-    {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+  <View style={styles.wrap}>
+    <Text style={styles.title}>{title.toUpperCase()}</Text>
+    {subtitle ? <Text style={styles.sub}>{subtitle}</Text> : null}
   </View>
 );
 
 const styles = StyleSheet.create({
-  wrapper: {
-    gap: 4
-  },
+  wrap: { gap: 3 },
   title: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: customerTheme.colors.text
+    ...t.overline,
+    color: palette.textFaint,
   },
-  subtitle: {
-    color: customerTheme.colors.textMuted,
-    fontSize: 14
-  }
+  sub: {
+    ...t.caption,
+    color: palette.textSoft,
+  },
 });

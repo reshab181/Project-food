@@ -5,6 +5,9 @@ export const adminAuthApi = {
   login(identifier: string, password: string) {
     return apiClient.post<AuthResponse>('/auth/login', { identifier, password });
   },
+  me() {
+    return apiClient.get<AuthResponse>('/auth/me');
+  },
   registerPushToken(expoPushToken: string) {
     return apiClient.post('/auth/push-token', { expoPushToken });
   }

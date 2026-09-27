@@ -1,6 +1,6 @@
-import { LinearGradient } from 'expo-linear-gradient';
+// Quiet info strip — no gradient, no bold text, light tinted background.
 import { StyleSheet, Text, View } from 'react-native';
-import { customerTheme } from '../theme';
+import { palette, type as t } from '../theme';
 
 interface InfoBannerProps {
   title: string;
@@ -8,39 +8,39 @@ interface InfoBannerProps {
 }
 
 export const InfoBanner = ({ title, message }: InfoBannerProps) => (
-  <LinearGradient colors={['#1E8E3E', '#56AB2F']} style={styles.banner}>
-    <Text style={styles.title}>{title}</Text>
-    <Text style={styles.message}>{message}</Text>
-    <View style={styles.badge}>
-      <Text style={styles.badgeText}>Pure Veg Promise</Text>
+  <View style={styles.wrap}>
+    <Text style={styles.icon}>🌿</Text>
+    <View style={styles.copy}>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.message}>{message}</Text>
     </View>
-  </LinearGradient>
+  </View>
 );
 
 const styles = StyleSheet.create({
-  banner: {
-    borderRadius: customerTheme.radius.lg,
-    padding: customerTheme.spacing.lg,
-    gap: 10
+  wrap: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    backgroundColor: palette.accentLight,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(74,124,89,0.15)',
   },
+  icon: {
+    fontSize: 18,
+    lineHeight: 22,
+    marginTop: 1,
+  },
+  copy: { flex: 1, gap: 3 },
   title: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: '900'
+    ...t.label,
+    color: palette.accent,
   },
   message: {
-    color: '#F4FCEF',
-    lineHeight: 22
+    ...t.caption,
+    color: palette.textSoft,
   },
-  badge: {
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    borderRadius: customerTheme.radius.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 6
-  },
-  badgeText: {
-    color: '#fff',
-    fontWeight: '700'
-  }
 });

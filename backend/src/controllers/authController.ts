@@ -5,6 +5,7 @@ import { signAccessToken, signRefreshToken } from '../services/tokenService';
 import { AuthenticatedRequest } from '../types/auth';
 import { ApiError } from '../utils/ApiError';
 import { asyncHandler } from '../utils/asyncHandler';
+import { addressInputSchema } from '../validation/auth';
 
 const buildAuthPayload = (user: any) => ({
   accessToken: signAccessToken({ userId: user._id.toString(), role: user.role }),
@@ -54,9 +55,13 @@ export const signup = asyncHandler(async (req, res: Response) => {
 });
 
 export const login = asyncHandler(async (req, res: Response) => {
-  const { identifier, password } = req.body;
+  const identifier = String(req.body.identifier ?? '').trim();
+  const password = String(req.body.password ?? '');
+  if (!identifier || !password) {
+    throw new ApiError(400, 'Email or phone and password are required.');
+  }
   const user = await UserModel.findOne({
-    $or: [{ email: String(identifier).toLowerCase() }, { phone: identifier }]
+    $or: [{ email: identifier.toLowerCase() }, { phone: identifier }]
   });
 
   if (!user || !(await (user as any).comparePassword(password))) {
@@ -67,6 +72,8 @@ export const login = asyncHandler(async (req, res: Response) => {
 });
 
 export const googleLogin = asyncHandler(async (req, res: Response) => {
+  throw new ApiError(501, 'Google sign-in is not configured yet.');
+  /*
   const { email, fullName, googleId } = req.body;
   let user = await UserModel.findOne({ email });
 
@@ -90,16 +97,16 @@ export const googleLogin = asyncHandler(async (req, res: Response) => {
   }
 
   res.json(buildAuthPayload(user));
+  */
 });
 
 export const sendOtp = asyncHandler(async (_req, res: Response) => {
-  res.json({
-    success: true,
-    message: 'OTP integration hook is ready. Connect Twilio, Firebase Auth, or MSG91 in production.'
-  });
+  throw new ApiError(501, 'OTP sign-in is not configured yet.');
 });
 
 export const verifyOtp = asyncHandler(async (req, res: Response) => {
+  throw new ApiError(501, 'OTP sign-in is not configured yet.');
+  /*
   const { phone, fullName = 'Pure Veg Customer' } = req.body;
   let user = await UserModel.findOne({ phone });
 
@@ -122,6 +129,7 @@ export const verifyOtp = asyncHandler(async (req, res: Response) => {
   }
 
   res.json(buildAuthPayload(user));
+  */
 });
 
 export const me = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
@@ -143,6 +151,19 @@ export const registerPushToken = asyncHandler(async (req: AuthenticatedRequest, 
   await user.save();
 
   res.json({ success: true });
+});
+
+export const addAddress = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const address = addressInputSchema.parse(req.body);
+  const user = await UserModel.findById(req.auth?.userId);
+  if (!user) {
+    throw new ApiError(404, 'User not found.');
+  }
+
+  // The most recently saved address is the default used at checkout.
+  user.addresses = [address, ...(user.addresses ?? [])].slice(0, 5) as any;
+  await user.save();
+  res.status(201).json({ user: buildAuthPayload(user).user });
 });
 
 export const seedSuperAdmin = asyncHandler(async (_req, res: Response) => {

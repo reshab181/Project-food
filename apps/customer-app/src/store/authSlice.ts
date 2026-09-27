@@ -7,12 +7,15 @@ import { storage } from '../utils/storage';
 interface AuthState {
   token?: string;
   user?: UserProfile;
-  status: 'idle' | 'loading' | 'authenticated' | 'error';
+  pushToken?: string;
+  // 'bootstrapping' = silent token restore on cold start (no UI loading spinner)
+  status: 'idle' | 'bootstrapping' | 'loading' | 'authenticated' | 'error';
   error?: string;
 }
 
 const initialState: AuthState = {
-  status: 'idle'
+  // Start in bootstrapping so the splash guard renders until we know auth state
+  status: 'bootstrapping'
 };
 
 export const loginCustomer = createAsyncThunk('auth/loginCustomer', async (payload: { identifier: string; password: string }) => {
@@ -41,6 +44,11 @@ export const loginWithGoogle = createAsyncThunk(
   }
 );
 
+export const addCustomerAddress = createAsyncThunk('auth/addAddress', async (payload: UserProfile['addresses'][number]) => {
+  const response = await authApi.addAddress(payload);
+  return response.data.user;
+});
+
 export const bootstrapAuth = createAsyncThunk('auth/bootstrap', async () => {
   const token = await storage.getToken();
   if (!token) {
@@ -51,17 +59,41 @@ export const bootstrapAuth = createAsyncThunk('auth/bootstrap', async () => {
   return { token, user: response.data.user };
 });
 
+// Standalone thunk so logout can deregister the push token before clearing state
+export const logoutCustomer = createAsyncThunk<void, string | undefined>(
+  'auth/logout',
+  async (pushToken, { dispatch }) => {
+    if (pushToken) {
+      try {
+        await authApi.deregisterPushToken(pushToken);
+      } catch {
+        // best-effort — proceed with logout regardless
+      }
+    }
+    try {
+      await storage.clearToken();
+    } catch {
+      // best-effort
+    }
+    setAuthToken(undefined);
+    dispatch(authSlice.actions._clearState());
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    logout(state) {
+    // Internal action used only by logoutCustomer thunk
+    _clearState(state) {
       state.token = undefined;
       state.user = undefined;
+      state.pushToken = undefined;
       state.status = 'idle';
       state.error = undefined;
-      setAuthToken(undefined);
-      void storage.clearToken();
+    },
+    setPushToken(state, action: PayloadAction<string>) {
+      state.pushToken = action.payload;
     },
     hydrateAuth(state, action: PayloadAction<{ token: string; user: UserProfile }>) {
       state.token = action.payload.token;
@@ -71,6 +103,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     const fulfilled = (state: AuthState, action: PayloadAction<{ accessToken?: string; token?: string; user: UserProfile }>) => {
+      // Backend may return either accessToken or token depending on endpoint
       const token = action.payload.accessToken ?? action.payload.token ?? state.token;
       state.token = token;
       state.user = action.payload.user;
@@ -83,13 +116,21 @@ const authSlice = createSlice({
     };
 
     builder
-      .addCase(loginCustomer.pending, (state) => {
-        state.status = 'loading';
-      })
+      // All interactive login/signup thunks show a loading state
+      .addCase(loginCustomer.pending, (state) => { state.status = 'loading'; state.error = undefined; })
+      .addCase(signupCustomer.pending, (state) => { state.status = 'loading'; state.error = undefined; })
+      .addCase(loginWithOtp.pending, (state) => { state.status = 'loading'; state.error = undefined; })
+      .addCase(loginWithGoogle.pending, (state) => { state.status = 'loading'; state.error = undefined; })
       .addCase(loginCustomer.fulfilled, fulfilled)
       .addCase(signupCustomer.fulfilled, fulfilled)
       .addCase(loginWithOtp.fulfilled, fulfilled)
       .addCase(loginWithGoogle.fulfilled, fulfilled)
+      .addCase(addCustomerAddress.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user = action.payload;
+        }
+      })
+      // Bootstrap: silent restore, stays in 'bootstrapping' until resolved
       .addCase(bootstrapAuth.fulfilled, (state, action) => {
         if (!action.payload) {
           state.status = 'idle';
@@ -99,15 +140,22 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.status = 'authenticated';
       })
+      .addCase(bootstrapAuth.rejected, (state) => {
+        // Token was invalid — treat as logged-out
+        state.status = 'idle';
+      })
       .addMatcher(
-        (action) => action.type.startsWith('auth/') && action.type.endsWith('/rejected'),
+        (action) =>
+          action.type.startsWith('auth/') &&
+          action.type.endsWith('/rejected') &&
+          action.type !== 'auth/bootstrap/rejected',
         (state, action: PayloadAction<unknown, string, unknown, Error>) => {
           state.status = 'error';
-          state.error = action.error.message;
+          state.error = action.error?.message ?? 'Something went wrong. Please try again.';
         }
       );
   }
 });
 
-export const { logout, hydrateAuth } = authSlice.actions;
+export const { hydrateAuth, setPushToken } = authSlice.actions;
 export default authSlice.reducer;

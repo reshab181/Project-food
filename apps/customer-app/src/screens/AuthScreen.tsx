@@ -1,121 +1,172 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { Screen } from '../components/Screen';
+import { useToast } from '../components/Toast';
 import { useAppDispatch, useAppSelector } from '../store';
-import { loginCustomer, loginWithGoogle, loginWithOtp, signupCustomer } from '../store/authSlice';
-import { customerTheme } from '../theme';
+import { loginCustomer, signupCustomer } from '../store/authSlice';
+import { palette, type as t } from '../theme';
+
+type Mode = 'login' | 'signup';
+
+const MODE_LABELS: Record<Mode, string> = {
+  login:  'Sign in',
+  signup: 'Create account',
+};
 
 export const AuthScreen = () => {
   const dispatch = useAppDispatch();
-  const status = useAppSelector((state) => state.auth.status);
-  const [mode, setMode] = useState<'login' | 'signup' | 'otp'>('otp');
-  const [form, setForm] = useState({
-    fullName: 'Aarav Gupta',
-    email: 'aarav@example.com',
-    phone: '+919999999999',
-    password: 'Customer@123'
-  });
-
+  const { success, error } = useToast();
+  const status = useAppSelector((s) => s.auth.status);
+  const [mode, setMode] = useState<Mode>('login');
+  const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '' });
   const loading = status === 'loading';
+
+  const set = (k: keyof typeof form) => (v: string) =>
+    setForm((p) => ({ ...p, [k]: v }));
 
   const handleSubmit = async () => {
     try {
       if (mode === 'login') {
         await dispatch(loginCustomer({ identifier: form.email, password: form.password })).unwrap();
+        success('Welcome back.');
       } else if (mode === 'signup') {
         await dispatch(signupCustomer(form)).unwrap();
-      } else {
-        await dispatch(loginWithOtp({ phone: form.phone, fullName: form.fullName })).unwrap();
+        success('Account created — welcome!');
       }
-    } catch (error) {
-      Alert.alert('Authentication failed', error instanceof Error ? error.message : 'Please try again.');
+    } catch (err) {
+      error(err instanceof Error ? err.message : 'Authentication failed.');
     }
   };
 
   return (
     <Screen>
-      <View style={styles.hero}>
-        <Text style={styles.title}>Pure Veg ordering made premium</Text>
-        <Text style={styles.subtitle}>Secure login with email, OTP, or a Google-ready backend endpoint.</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Bam Bam Cake Shop</Text>
+        <Text style={styles.sub}>Sign in to start ordering.</Text>
       </View>
-      <View style={styles.switchRow}>
-        {(['login', 'signup', 'otp'] as const).map((item) => (
-          <Text key={item} onPress={() => setMode(item)} style={[styles.switch, mode === item && styles.switchActive]}>
-            {item.toUpperCase()}
+
+      <View style={styles.divider} />
+
+      {/* Mode switcher — plain text tabs */}
+      <View style={styles.modeRow}>
+        {(['login', 'signup'] as Mode[]).map((m) => (
+          <Text
+            key={m}
+            onPress={() => setMode(m)}
+            style={[styles.modeTab, mode === m && styles.modeTabActive]}
+          >
+            {MODE_LABELS[m]}
           </Text>
         ))}
       </View>
-      <View style={styles.form}>
-        {mode !== 'login' ? <TextInput value={form.fullName} onChangeText={(fullName) => setForm((prev) => ({ ...prev, fullName }))} placeholder="Full name" style={styles.input} /> : null}
-        {mode !== 'otp' ? <TextInput value={form.email} onChangeText={(email) => setForm((prev) => ({ ...prev, email }))} placeholder="Email" style={styles.input} autoCapitalize="none" /> : null}
-        <TextInput value={form.phone} onChangeText={(phone) => setForm((prev) => ({ ...prev, phone }))} placeholder="Phone" style={styles.input} />
-        {mode !== 'otp' ? <TextInput value={form.password} onChangeText={(password) => setForm((prev) => ({ ...prev, password }))} placeholder="Password" style={styles.input} secureTextEntry /> : null}
-        <PrimaryButton label={mode === 'signup' ? 'Create Account' : mode === 'otp' ? 'Continue with OTP' : 'Login'} onPress={handleSubmit} loading={loading} />
-        <PrimaryButton
-          label="Google Login Demo"
-          variant="outline"
-          onPress={async () => {
-            try {
-              await dispatch(
-                loginWithGoogle({
-                  email: 'google.customer@bambamcakeshop.com',
-                  fullName: 'Google Customer',
-                  googleId: 'demo-google-id'
-                })
-              ).unwrap();
-            } catch (error) {
-              Alert.alert('Google login failed', error instanceof Error ? error.message : 'Please try again.');
-            }
-          }}
-        />
-      </View>
+
+{/* Fields */}
+<View style={styles.fields}>
+  {mode !== 'login' && (
+    <View style={styles.field}>
+      <Text style={styles.fieldLabel}>Full name</Text>
+      <TextInput
+        value={form.fullName}
+        onChangeText={set('fullName')}
+        style={styles.input}
+      />
+      <View style={styles.fieldLine} />
+    </View>
+  )}
+
+  <View style={styles.field}>
+    <Text style={styles.fieldLabel}>Email</Text>
+    <TextInput
+      value={form.email}
+      onChangeText={set('email')}
+      style={styles.input}
+      autoCapitalize="none"
+      keyboardType="email-address"
+    />
+    <View style={styles.fieldLine} />
+  </View>
+
+  {mode !== 'login' && (
+    <View style={styles.field}>
+      <Text style={styles.fieldLabel}>Phone</Text>
+      <TextInput
+        value={form.phone}
+        onChangeText={set('phone')}
+        style={styles.input}
+        keyboardType="phone-pad"
+      />
+      <View style={styles.fieldLine} />
+    </View>
+  )}
+
+  <View style={styles.field}>
+    <Text style={styles.fieldLabel}>Password</Text>
+    <TextInput
+      value={form.password}
+      onChangeText={set('password')}
+      style={styles.input}
+      secureTextEntry
+    />
+    <View style={styles.fieldLine} />
+  </View>
+</View>
+
+      <PrimaryButton label={MODE_LABELS[mode]} onPress={handleSubmit} loading={loading} />
+      <PrimaryButton
+        label="Continue with Google"
+        variant="outline"
+        onPress={() => error('Google login is not yet available.')}
+      />
     </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  hero: {
-    paddingTop: customerTheme.spacing.xl,
-    gap: 8
-  },
+  header: { gap: 6, paddingTop: 8 },
   title: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: customerTheme.colors.text
+    ...t.display,
+    color: palette.text,
+    letterSpacing: 1.0,
   },
-  subtitle: {
-    color: customerTheme.colors.textMuted,
-    lineHeight: 22
+  sub: {
+    ...t.body,
+    color: palette.textSoft,
   },
-  switchRow: {
+  divider: {
+    height: 1,
+    backgroundColor: palette.hairline,
+  },
+  modeRow: {
     flexDirection: 'row',
-    gap: 12
+    gap: 24,
   },
-  switch: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: customerTheme.radius.pill,
-    backgroundColor: customerTheme.colors.mutedSurface,
-    color: customerTheme.colors.textMuted,
-    fontWeight: '700'
+  modeTab: {
+    ...t.body,
+    color: palette.textFaint,
+    paddingBottom: 4,
   },
-  switchActive: {
-    backgroundColor: '#E9F7EE',
-    color: customerTheme.colors.primary
+  modeTabActive: {
+    color: palette.text,
+    borderBottomWidth: 1,
+    borderBottomColor: palette.text,
   },
-  form: {
-    backgroundColor: customerTheme.colors.surface,
-    borderRadius: customerTheme.radius.lg,
-    padding: customerTheme.spacing.lg,
-    gap: 14
+  fields: { gap: 20 },
+  field: { gap: 4 },
+  fieldLabel: {
+    ...t.caption,
+    color: palette.textFaint,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
   },
   input: {
-    borderWidth: 1,
-    borderColor: customerTheme.colors.border,
-    borderRadius: customerTheme.radius.md,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingVertical: 14
-  }
+    ...t.input,
+    color: palette.text,
+    paddingVertical: 8,
+    paddingHorizontal: 0,
+  },
+  fieldLine: {
+    height: 1,
+    backgroundColor: palette.border,
+  },
 });
