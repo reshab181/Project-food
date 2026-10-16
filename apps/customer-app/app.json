@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Bam Bam Cake Shop",
+    "slug": "bam-bam-cake-shop-customer",
+    "scheme": "bambamcustomer",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.bambamcakeshop.customer"
+    },
+    "extra": {
+      "apiUrl": "http://localhost:5000/api/v1",
+      "socketUrl": "http://localhost:5000"
+    }
+  }
+}

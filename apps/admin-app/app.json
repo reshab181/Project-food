@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Bam Bam Management",
+    "slug": "bam-bam-cake-shop-admin",
+    "scheme": "bambamadmin",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.bambamcakeshop.admin"
+    },
+    "extra": {
+      "apiUrl": "http://localhost:5000/api/v1",
+      "socketUrl": "http://localhost:5000"
+    }
+  }
+}
