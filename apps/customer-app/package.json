@@ -1,0 +1,42 @@
+{
+  "name": "@bambam/customer-app",
+  "version": "1.0.0",
+  "private": true,
+  "main": "expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@bambam/shared": "1.0.0",
+    "@hookform/resolvers": "latest",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-navigation/bottom-tabs": "latest",
+    "@react-navigation/native": "latest",
+    "@react-navigation/native-stack": "latest",
+    "@reduxjs/toolkit": "latest",
+    "axios": "latest",
+    "expo": "~55.0.31",
+    "expo-auth-session": "~55.0.18",
+    "expo-constants": "~55.0.17",
+    "expo-linear-gradient": "~55.0.18",
+    "expo-notifications": "~55.0.27",
+    "expo-secure-store": "~55.0.18",
+    "expo-status-bar": "~55.0.6",
+    "react": "19.2.0",
+    "react-hook-form": "latest",
+    "react-native": "0.83.10",
+    "react-native-safe-area-context": "~5.6.2",
+    "react-native-screens": "~4.23.0",
+    "react-redux": "latest",
+    "socket.io-client": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-native": "latest",
+    "typescript": "latest"
+  }
+}

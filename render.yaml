@@ -1,0 +1,51 @@
+# Render.com Blueprint for the Bam Bam Cake Shop backend.
+# Usage:
+#   1. Push this repo to GitHub.
+#   2. On Render: New + > Blueprint, select the repo.
+#   3. Fill in the environment variables marked `sync: false` below.
+#   4. Deploy. Render builds and runs the backend automatically.
+#
+# MongoDB: create a free MongoDB Atlas cluster and paste its connection
+# string into MONGODB_URI. (Render also offers managed databases.)
+
+services:
+  - type: web
+    name: bambam-backend
+    runtime: node
+    plan: free
+    # Install the whole monorepo (workspaces) then build only the backend.
+    buildCommand: npm install && npm --workspace @bambam/backend run build
+    startCommand: npm --workspace @bambam/backend run start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      # Public URLs of the deployed web builds (optional). Leave blank to
+      # allow all browser origins until the real URLs are known.
+      - key: CLIENT_APP_URL
+        sync: false
+      - key: ADMIN_APP_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      # Image uploads (Cloudinary) - optional but recommended.
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      # Expo push notifications (optional).
+      - key: EXPO_ACCESS_TOKEN
+        sync: false

@@ -1,0 +1,22 @@
+{
+  "name": "bam-bam-cake-shop-ecosystem",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*",
+    "backend",
+    "packages/*"
+  ],
+  "comment:overrides": "Pin a single react + react-native across the whole monorepo. Transitive deps (e.g. @react-navigation/*) were pulling react-native 0.85.2 / react 19.2.5 into the root while the apps use 0.83.6 / 19.2.0, causing two copies in the release bundle and the 'Cannot read property useEffect of null' crash.",
+  "overrides": {
+    "react": "19.2.0",
+    "react-native": "0.83.10"
+  },
+  "scripts": {
+    "dev:customer": "npm --workspace @bambam/customer-app run start",
+    "dev:admin": "npm --workspace @bambam/admin-app run start",
+    "dev:backend": "npm --workspace @bambam/backend run dev",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  }
+}

@@ -1,0 +1,27 @@
+node_modules
+.expo
+dist
+build
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+# Secrets / credentials - never commit these
+**/google-services.json
+**/GoogleService-Info.plist
+**/fcm-service-account.json
+*service-account*.json
+*-firebase-adminsdk-*.json
+coverage
+**/android/app/build/
+**/android/.gradle/
+**/android/build/
+**/android/local.properties
+**/android/*.iml
+**/android/gradle/
+data/db/
+tools/mongodb/
+ios
+.idea
+.vscode

@@ -1,0 +1,45 @@
+{
+  "name": "@bambam/backend",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsup",
+    "start": "node dist/server.js",
+    "seed": "tsx src/seed.ts",
+    "seed:prod": "node dist/seed.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@bambam/shared": "1.0.0",
+    "bcryptjs": "3.0.3",
+    "cloudinary": "2.10.0",
+    "cors": "2.8.6",
+    "dotenv": "17.4.2",
+    "expo-server-sdk": "6.1.0",
+    "express": "5.2.1",
+    "helmet": "8.1.0",
+    "jsonwebtoken": "9.0.3",
+    "mongoose": "9.6.1",
+    "morgan": "1.10.1",
+    "multer": "2.1.1",
+    "socket.io": "4.8.3",
+    "twilio": "^6.2.0",
+    "zod": "4.4.1"
+  },
+  "devDependencies": {
+    "@types/cors": "2.8.19",
+    "@types/express": "5.0.6",
+    "@types/jsonwebtoken": "9.0.10",
+    "@types/morgan": "1.9.10",
+    "@types/multer": "2.1.0",
+    "@types/node": "25.6.0",
+    "tsup": "8.5.0",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3"
+  }
+}
